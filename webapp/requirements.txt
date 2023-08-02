@@ -1,0 +1,12 @@
+boto3==1.28.15
+celery==5.3.1
+Flask==2.3.2
+Flask-Caching==2.0.2
+Flask-SocketIO==5.3.5
+freezegun==1.2.2
+gevent-websocket==0.10.1
+gunicorn==21.2.0
+marshmallow==3.20.1
+pytz==2023.3
+redis==4.6.0
+requests==2.31.0

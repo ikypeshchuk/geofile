@@ -1,0 +1,15 @@
+{
+ "created_at": "2023-07-31 00:00:00+00:00",
+ "download_duration": "0.00",
+ "download_url": "http://0.0.0.0:8008/download/9be7d5d6-6067-44f5-a672-9076af5ec117.txt",
+ "size": 1024,
+ "filename": "9be7d5d6-6067-44f5-a672-9076af5ec117.txt",
+ "replica": true,
+ "origin_filename": "9be7d5d6-6067-44f5-a672-9076af5ec117.txt",
+ "location": {
+  "ip": "0.0.0.0",
+  "city": "Hesse",
+  "region": "Frankfurt am Main",
+  "country": "DE"
+ }
+}

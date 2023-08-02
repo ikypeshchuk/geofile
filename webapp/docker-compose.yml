@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  app:
+    image: "geofile:local"
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.local
+    env_file:
+      - .env.dev
+      - .env
+    command: /bin/sh -c "cd /app; python wsgi.py"
+    volumes:
+      - .:/app
+    ports:
+      - "8008:8008"
+    depends_on:
+      - redis
+    networks:
+      - net
+
+  celery:
+    image: "geofile:local"
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.local
+    command: /bin/sh -c "cd /app; celery -A celery_app.app worker -l INFO -c 1"
+    env_file:
+      - .env.dev
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    networks:
+      - net
+
+  redis:
+    image: redis:7.0
+    networks:
+      - net
+
+networks:
+  net:

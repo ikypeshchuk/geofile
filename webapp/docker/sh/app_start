@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+gunicorn wsgi:flask_app -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w ${GUNICORN_WORKERS} --threads 2 -b ${GUNICORN_BIND} --log-level ${GUNICORN_LOG_LEVEL}

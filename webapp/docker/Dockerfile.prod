@@ -1,0 +1,61 @@
+FROM python:3.11.4-slim-bullseye as python
+
+FROM python as python-build-stage
+
+ARG BUILD_ENVIRONMENT=production
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  build-essential \
+  libpq-dev
+
+COPY ./requirements.txt /requirements.txt
+
+RUN pip install --upgrade pip &&  \
+    pip wheel --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+FROM python as python-run-stage
+
+ARG BUILD_ENVIRONMENT=production
+ARG APP_HOME=/app
+
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV BUILD_ENV ${BUILD_ENVIRONMENT}
+ENV DEPLOYMENT_ENVIRONMENT PROD
+
+WORKDIR ${APP_HOME}
+
+RUN addgroup --system geofile \
+    && adduser --system --ingroup geofile geofile
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  libpq-dev \
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=python-build-stage /usr/src/app/wheels  /wheels/
+
+RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
+  && rm -rf /wheels/
+
+COPY --chown=geofile:geofile ./docker/sh/entrypoint /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint
+RUN chmod +x /entrypoint
+
+COPY --chown=geofile:geofile ./docker/sh/app_start /app_start
+RUN sed -i 's/\r$//g' /app_start
+RUN chmod +x /app_start
+
+COPY --chown=geofile:geofile ./docker/sh/celery_start /celery_start
+RUN sed -i 's/\r$//g' /celery_start
+RUN chmod +x /celery_start
+
+RUN chown geofile:geofile ${APP_HOME}
+
+COPY . ${APP_HOME}
+
+USER geofile
+
+
+ENTRYPOINT ["/entrypoint"]
