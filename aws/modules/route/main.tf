@@ -13,12 +13,6 @@ resource "aws_route53_record" "record" {
   geolocation_routing_policy {
     continent = var.continent
   }
-
-  //alias {
-  //  name                   = var.alias_name
-  //  zone_id                = var.alias_zone_id
-  //  evaluate_target_health = true
-  //}
 }
 
 resource "aws_route53_record" "default" {
@@ -33,10 +27,4 @@ resource "aws_route53_record" "default" {
   geolocation_routing_policy {
     country = "*"
   }
-
-  //alias {
-  //  name                   = var.default_alias_name != "" ? var.default_alias_name : var.alias_name
-  //  zone_id                = var.default_alias_zone_id != "" ? var.default_alias_zone_id : var.alias_zone_id
-  //  evaluate_target_health = true
-  //}
 }
