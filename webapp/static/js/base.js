@@ -34,6 +34,7 @@ function sendInputValue(elementId, serverUrl, fieldName) {
       data: JSON.stringify(postData),
       type: "POST",
       contentType: "application/json",
+      xhrFields: {withCredentials: true},
     }).done(function(responseData) {
       $(elementId).val("");
       toastr.success("Файл відправлено на опрацювання, очікуйте резутьтату.")
@@ -129,7 +130,14 @@ function handleMessageSuccess(data) {
 
 
 function socketHandlers(serverUrl) {
-  const socket = io.connect(serverUrl);
+  let socket = io.connect(serverUrl);
+
+  document.addEventListener("visibilitychange", function() {
+    if (!document.hidden && socket.disconnected) {
+      socket = io.connect(serverUrl);
+    }
+  });
+
   socket.on("connect", function() {
     socket.send("User has connected!");
   });
@@ -140,7 +148,9 @@ function socketHandlers(serverUrl) {
 
   socket.on("setUserSID", function(userSID) {
     var existingSID = getCookie("userSID");
-    if (!existingSID) {document.cookie = `userSID=${userSID}`}
+    if (!existingSID) {
+      document.cookie = `userSID=${userSID}`;
+    }
   });
 
   socket.on("fileUploadSuccessful", function(data) {
@@ -149,13 +159,14 @@ function socketHandlers(serverUrl) {
   });
 
   socket.on("messageSuccess", function(data) {
-    handleMessageSuccess(data)
+    handleMessageSuccess(data);
   });
 
   socket.on("errors", function(msg) {
     toastr.error(msg);
   });
 }
+
 
 
 function addFileToList(fileData, fileListId) {
@@ -194,6 +205,7 @@ function deleteFile(this_) {
   $.ajax({
     url: $(this_).data("delete-url"),
     type: "DELETE",
+    xhrFields: {withCredentials: true},
   }).done(function(responseData) {
   }).fail(function() {
     toastr.error("Йой, щось пішло не так! Спробуйте трохи згодом.")
