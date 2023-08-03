@@ -26,12 +26,12 @@ function calculateTimeDownload(fileSizeBytes, speedBps) {
 }
 
 
-function sendInputValue(elementId, serverUrl) {
+function sendInputValue(elementId, serverUrl, fieldName) {
   $(elementId).on("change", function postinput(){
-    const matchvalue = $(this).val();
+    var postData = {[fieldName]: $(this).val()};
     $.ajax({
       url: serverUrl,
-      data: JSON.stringify({url: matchvalue}),
+      data: JSON.stringify(postData),
       type: "POST",
       contentType: "application/json",
     }).done(function(responseData) {

@@ -54,7 +54,7 @@
     <script>
       $(document).ready(function(){
           testDownloadSpeed();
-          sendInputValue("#url-file-id", "{{ url_for('files_bp.upload') }}");
+          sendInputValue("#url-file-id", "{{ url_for('files_bp.upload') }}", "url");
           socketHandlers("{{ g.server_name }}");
           $("#get-list-files-id").click(function () {getListFiles(this)});
       });
