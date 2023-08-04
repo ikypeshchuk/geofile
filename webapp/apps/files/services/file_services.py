@@ -32,7 +32,8 @@ class FilesService:
                 for obj in Config.AWS_REPLICA_BUCKETS.split(',') if obj]
 
     def download_file(self) -> Dict:
-        return self.upload_to_s3()
+        with self._download_file_stream() as file_stream:
+            return self.upload_to_s3(file_stream)
 
     def get_filename(self) -> str:
         return os.path.basename(self.url)
@@ -69,25 +70,24 @@ class FilesService:
         response.raise_for_status()
         return BytesIO(response.content)
 
-    def upload_to_s3(self) -> Dict:
+    def upload_to_s3(self, file_stream: BytesIO) -> Dict:
         assert self.url
 
         filename = self.get_new_filename()
 
-        with self._download_file_stream() as file_stream:
-            start_time = time.time()
-            self.s3.upload_fileobj(
-                file_stream,
-                self.s3_bucket_name,
-                filename,
-                Config=TransferConfig(use_threads=True, max_concurrency=4)
-            )
-            download_duration = time.time() - start_time
-            created_at = str(datetime.now(pytz.timezone('UTC')))
+        start_time = time.time()
+        self.s3.upload_fileobj(
+            file_stream,
+            self.s3_bucket_name,
+            filename,
+            Config=TransferConfig(use_threads=True, max_concurrency=4)
+        )
+        download_duration = time.time() - start_time
+        created_at = str(datetime.now(pytz.timezone('UTC')))
 
-            data = self.make_file_data(self.s3, filename, self.get_filename(), download_duration, created_at)
-            cache.set(filename, data, timeout=((60*60)*24)*20)
-            return data
+        data = self.make_file_data(self.s3, filename, self.get_filename(), download_duration, created_at)
+        cache.set(filename, data, timeout=((60*60)*24)*20)
+        return data
 
     def file_replication(self, filename: str) -> Dict:
         copy_source = {

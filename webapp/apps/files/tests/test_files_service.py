@@ -60,8 +60,8 @@ class TestFilesService(BaseTestCase):
     @mock.patch('apps.files.services.file_services.requests.get', side_effect=mocked_requests_get)
     def test_upload_to_s3(self, mock_requests_get, mock_cache_set, mock_uuid4, mock_get_location):
         with self.app.app_context():
-
-            data = self.files_service.upload_to_s3()
+            with self.files_service._download_file_stream() as file_stream:
+                data = self.files_service.upload_to_s3(file_stream)
             self.assertEqualFixture(data, 'fixtures/services/files_service_upload_to_s3.json')
 
         self.s3_mock.upload_fileobj.assert_called_once()
