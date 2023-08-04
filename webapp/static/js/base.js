@@ -109,7 +109,7 @@ function addNewFileToList(fileData, fileListId) {
 
   if (!fileData.replica) {
     timeDownload = `${calculateTimeDownload(fileData.size, $("#network-speed-id").val())}sec, `;
-    deleteBtn = `<br><button data-delete-url="/delete/${fileData.filename}" class="btn btn-danger btn-sm" style="margin:5px 0" onclick="deleteFile(this); return false">Delete</button>`;
+    deleteBtn = `<br><button data-delete-url="/delete/${fileData.filename}" data-filename="${fileData.filename}" class="btn btn-danger btn-sm" style="margin:5px 0" onclick="deleteFile(this); return false">Delete</button>`;
     downloadUrl = `<br>${timeDownload}<a href="${fileData.download_url}" data-download-url="${fileData.download_url}" data-filename="${fileData.filename}" data-origin-filename="${fileData.origin_filename}" id="${fileData.filename}-link" onclick="downloadFile(this);return false;">Download</a>${createDownloadTimeBox(fileData.filename)}${deleteBtn}`;
   } else {
       fileInfo = `${timeDownload} ${fileInfo}`
@@ -170,7 +170,7 @@ function socketHandlers(serverUrl) {
 
 
 function addFileToList(fileData, fileListId) {
-  const deleteBtn = `<br><button data-delete-url="/delete/${fileData.filename}" style="margin-top:10px" class="btn btn-danger btn-sm" onclick="deleteFile(this); return false">Delete</button>`;
+  const deleteBtn = `<br><button data-delete-url="/delete/${fileData.filename}" data-filename="${fileData.filename}" style="margin-top:10px" class="btn btn-danger btn-sm" onclick="deleteFile(this); return false">Delete</button>`;
   const locationInfo = `${fileData.location.country}, ${fileData.location.region}, ${fileData.location.city}, ${fileData.location.ip}`
 
   const link = `<a href="#" data-download-url="${fileData.download_url}" data-filename="${fileData.filename}" id="${fileData.filename}-link" onclick="downloadFile(this);return false;">Download</a>${createDownloadTimeBox(fileData.filename)}`;
@@ -207,6 +207,8 @@ function deleteFile(this_) {
     type: "DELETE",
     xhrFields: {withCredentials: true},
   }).done(function(responseData) {
+      document.getElementById($(this_).data("filename")).remove()
+      toastr.success(`Файл успішно видалено.`)
   }).fail(function() {
     toastr.error("Йой, щось пішло не так! Спробуйте трохи згодом.")
     $(this_).removeAttr("disabled")

@@ -58,7 +58,7 @@ def download(filename: str):
 @files_bp.route('/delete/<string:filename>', methods=['DELETE'])
 def delete(filename: str):
     try:
-        delete_replication_file.delay(filename, request.cookies['userSID'])
+        FilesService().delete_file(filename)
 
         for bucket in FilesService.get_replica_buckets():
             delete_replication_file.delay(filename, request.cookies['userSID'], bucket)
