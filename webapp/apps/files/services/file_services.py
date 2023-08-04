@@ -64,15 +64,17 @@ class FilesService:
             'location': IpAddress(self.ipaddress).get_location()
         }
 
+    def _download_file_stream(self) -> BytesIO:
+        response = requests.get(self.url, stream=True)
+        response.raise_for_status()
+        return BytesIO(response.content)
+
     def upload_to_s3(self) -> Dict:
         assert self.url
 
-        response = requests.get(self.url, stream=True)
-        response.raise_for_status()
-
         filename = self.get_new_filename()
 
-        with BytesIO(response.content) as file_stream:
+        with self._download_file_stream() as file_stream:
             start_time = time.time()
             self.s3.upload_fileobj(
                 file_stream,
