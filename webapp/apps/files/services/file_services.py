@@ -20,10 +20,10 @@ class FilesService:
     def __init__(self,
                  url: str = None,
                  s3_bucket_name: str = Config.AWS_S3_BUCKET_NAME,
-                 aws_dns: str = Config.AWS_INSTANCE_IP) -> None:
+                 ipaddress: str = Config.AWS_INSTANCE_IP) -> None:
         self.url = url
         self.s3_bucket_name = s3_bucket_name
-        self.aws_dns = aws_dns
+        self.ipaddress = ipaddress
         self.s3 = boto3.client('s3')
 
     @classmethod
@@ -61,7 +61,7 @@ class FilesService:
             'filename': filename,
             'replica': False,
             'origin_filename': origin_filename,
-            'location': IpAddress(self.aws_dns).get_location()
+            'location': IpAddress(self.ipaddress).get_location()
         }
 
     def upload_to_s3(self) -> Dict:
@@ -106,7 +106,7 @@ class FilesService:
     def list_files(self) -> list:
         try:
             return [{'filename': item['Key'],
-                     'location': IpAddress(self.aws_dns).get_location(),
+                     'location': IpAddress(self.ipaddress).get_location(),
                      'size': item['Size'],
                      'download_url': str(url_for('files_bp.download', filename=item['Key']))}
                     for item in self.s3.list_objects(Bucket=self.s3_bucket_name)['Contents']]

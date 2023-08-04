@@ -31,7 +31,7 @@ def file_replication(filename: str, user_sid: str, bucket: list) -> None:
     room = cache.get(user_sid)
     if room:
         try:
-            file_data = FilesService(s3_bucket_name=bucket[0], aws_dns=bucket[1]).file_replication(filename)
+            file_data = FilesService(s3_bucket_name=bucket[0], ipaddress=bucket[1]).file_replication(filename)
             socketio.emit('fileUploadSuccessful', file_data, room=room)
         except Exception as exc:
             traceback.print_exc(file=sys.stdout)
@@ -48,7 +48,7 @@ def delete_replication_file(filename: str, user_sid: str, bucket: list = None) -
             msg = 'File success deleted.'
 
             if bucket is not None:
-                file_data = FilesService(s3_bucket_name=bucket[0], aws_dns=bucket[1]).delete_file(filename)
+                file_data = FilesService(s3_bucket_name=bucket[0], ipaddress=bucket[1]).delete_file(filename)
                 msg = 'Replication file success deleted.'
             else:
                 file_data = FilesService().delete_file(filename)
